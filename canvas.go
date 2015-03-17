@@ -1,11 +1,23 @@
 package rkit
 
-import (
-	"github.com/gopherjs/gopherjs/js"
+import "github.com/gopherjs/gopherjs/js"
+
+var (
+	DesktopResize chan struct{}
 )
 
 func init() {
+	DesktopResize = make(chan struct{})
 
+	js.Global.Get("window").Call(
+		"addEventListener", "resize", func() {
+			select {
+			case DesktopResize <- struct{}{}:
+			default:
+				break
+			}
+		},
+	)
 }
 
 func Width() int {
