@@ -37,6 +37,7 @@ func main() {
 
 	for {
 		fmt.Println(rkit.Width(), rkit.Height(), rkit.Title())
+		rkit.SetTitle(fmt.Sprintf("%d", time.Now().UnixNano()))
 		time.Sleep(time.Second)
 	}
 }
