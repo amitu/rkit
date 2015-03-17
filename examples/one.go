@@ -11,29 +11,22 @@ func main() {
 	rkit.SetTitle("yo")
 
 	go func() {
+		ch := rkit.DesktopResize.Sub()
 		for {
-			<-rkit.DesktopResize
-			fmt.Println("got \"desktop\" resize evt")
+			<-ch
+			fmt.Println("got evt")
 		}
+		rkit.DesktopResize.Unsub(ch)
 	}()
 
-	// go func() {
-	// 	c := rkit.DesktopResize.Sub()
-	// 	for {
-	// 		<-c
-	// 		fmt.Println("got evt")
-	// 	}
-	// 	rkit.DesktopResize.Unsub(c)
-	// }()
-
-	// go func() {
-	// 	c := rkit.DesktopResize.Sub()
-	// 	for {
-	// 		<-c
-	// 		fmt.Println("got evt")
-	// 	}
-	// 	rkit.DesktopResize.Unsub(c)
-	// }()
+	go func() {
+		ch := rkit.DesktopResize.Sub()
+		for {
+			<-ch
+			fmt.Println("got evt22")
+		}
+		rkit.DesktopResize.Unsub(ch)
+	}()
 
 	for {
 		fmt.Println(rkit.Width(), rkit.Height(), rkit.Title())

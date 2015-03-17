@@ -3,19 +3,19 @@ package rkit
 import "github.com/gopherjs/gopherjs/js"
 
 var (
-	DesktopResize chan struct{}
+	DesktopResize *EventSource
 )
 
+type DesktopResizeEvent struct {
+	BaseEvent
+}
+
 func init() {
-	DesktopResize = make(chan struct{})
+	DesktopResize = MakeEventSource()
 
 	js.Global.Get("window").Call(
 		"addEventListener", "resize", func() {
-			select {
-			case DesktopResize <- struct{}{}:
-			default:
-				break
-			}
+			DesktopResize.Pub(DesktopResizeEvent{})
 		},
 	)
 }
