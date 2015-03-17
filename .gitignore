@@ -1,1 +1,4 @@
 ropen/ropen
+tmp
+*.js
+*.js.map
