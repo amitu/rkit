@@ -21,36 +21,49 @@ func (be BaseEvent) Type() EventType {
 	return EventType(be.name)
 }
 
+type EventSourceWatcher interface {
+	Start()
+	Stop()
+}
+
 type EventSource struct {
-	channels map[chan Event]struct{}
-	lock     sync.RWMutex
+	Channels map[chan Event]struct{}
+	Lock     sync.RWMutex
+	Watcher  EventSourceWatcher
 }
 
 func MakeEventSource() *EventSource {
 	return &EventSource{
-		channels: make(map[chan Event]struct{}),
+		Channels: make(map[chan Event]struct{}),
 	}
 }
 
 func (s *EventSource) Sub() chan Event {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	s.Lock.Lock()
+	defer s.Lock.Unlock()
 
 	ch := make(chan Event)
-	s.channels[ch] = struct{}{}
+	s.Channels[ch] = struct{}{}
+
+	if s.Watcher != nil && len(s.Channels) == 1 {
+		s.Watcher.Start()
+	}
 	return ch
 }
 
 func (s *EventSource) Unsub(ch chan Event) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	s.Lock.Lock()
+	defer s.Lock.Unlock()
 
-	delete(s.channels, ch)
+	delete(s.Channels, ch)
+	if s.Watcher != nil && len(s.Channels) == 0 {
+		s.Watcher.Stop()
+	}
 }
 
 func (s *EventSource) Pub(ev Event) {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
+	s.Lock.RLock()
+	defer s.Lock.RUnlock()
 
 	/*
 		TODO: how to decide if this is a safe pattern? can one lose some events
@@ -58,7 +71,7 @@ func (s *EventSource) Pub(ev Event) {
 		can spawn a goroutine dedicated to capturing all fired events, and que
 		them elsewhere and process them later.
 	*/
-	for ch, _ := range s.channels {
+	for ch, _ := range s.Channels {
 		select {
 		case ch <- ev:
 		default:
