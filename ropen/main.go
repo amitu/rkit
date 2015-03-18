@@ -1,6 +1,6 @@
 /*
-ropen command is used to create a temporary html file, and launch browser to
-open that html file.
+Comman ropen is used to create a temporary html file containing a js file, and
+launch browser to open that html file.
 
 Since gopher compiler generates a .js file, we need a html file to embed that
 js, and have to debug the code by opening that html file, and since we may have
