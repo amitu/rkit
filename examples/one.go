@@ -41,7 +41,7 @@ func main() {
 		ch := rkit.AnimationFrame.Sub()
 		for {
 			<-ch
-			fmt.Println("got frame")
+			fmt.Println("got frame2")
 		}
 		rkit.DesktopResize.Unsub(ch)
 	}()

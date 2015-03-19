@@ -12,6 +12,7 @@ var (
 		when do, that would be different than this.
 	*/
 	DesktopResize *EventSource
+	canvas        *js.Object
 )
 
 /*
@@ -30,6 +31,30 @@ func init() {
 			DesktopResize.Pub(DesktopResizeEvent{})
 		},
 	)
+
+	initCanvas()
+}
+
+func initCanvas() {
+	document := js.Global.Get("document")
+
+	body := document.Get("body")
+	bstyle := body.Get("style")
+	bstyle.Set("display", "block")
+	bstyle.Set("width", "100%")
+	bstyle.Set("height", "100%")
+	bstyle.Set("margin", "0px")
+	bstyle.Set("padding", "0px")
+
+	canvas = document.Call("createElement", "canvas")
+	cstyle := canvas.Get("style")
+	cstyle.Set("display", "block")
+	cstyle.Set("width", "100%")
+	cstyle.Set("height", "100%")
+	cstyle.Set("margin", "0px")
+	cstyle.Set("padding", "0px")
+
+	body.Call("appendChild", canvas)
 }
 
 /*
