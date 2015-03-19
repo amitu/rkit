@@ -12,6 +12,8 @@ var (
 		when do, that would be different than this.
 	*/
 	DesktopResize *EventSource
+	Key           *EventSource
+	Mouse         *EventSource
 	canvas        *js.Object
 )
 
@@ -23,16 +25,67 @@ type DesktopResizeEvent struct {
 	BaseEvent
 }
 
+type Action int
+
+var (
+	MOVE    = Action(0)
+	PRESS   = Action(1)
+	RELEASE = Action(2)
+)
+
+type KeyEvent struct {
+	BaseEvent
+	Char      rune
+	Code      int
+	Modifiers int
+	Action    Action
+}
+
 func init() {
 	DesktopResize = MakeEventSource()
+	Key = MakeEventSource()
+	Mouse = MakeEventSource()
 
+	initCanvas()
+	initEvents()
+}
+
+func initEvents() {
 	js.Global.Get("window").Call(
 		"addEventListener", "resize", func() {
 			DesktopResize.Pub(DesktopResizeEvent{})
 		},
 	)
 
-	initCanvas()
+	js.Global.Call("addEventListener", "keydown", func(ev *js.Object) {
+		Key.Pub(
+			KeyEvent{
+				Code:   ev.Get("keyCode").Int(),
+				Char:   rune(ev.Get("charCode").Int()),
+				Action: PRESS,
+			},
+		)
+	}, false)
+
+	js.Global.Call("addEventListener", "keyup", func(ev *js.Object) {
+		Key.Pub(
+			KeyEvent{
+				Code:   ev.Get("keyCode").Int(),
+				Char:   rune(ev.Get("charCode").Int()),
+				Action: RELEASE,
+			},
+		)
+	}, false)
+
+	js.Global.Call("addEventListener", "keypress", func(ev *js.Object) {
+		Key.Pub(
+			KeyEvent{
+				Code:   ev.Get("keyCode").Int(),
+				Char:   rune(ev.Get("charCode").Int()),
+				Action: PRESS,
+			},
+		)
+	}, false)
 }
 
 func initCanvas() {
