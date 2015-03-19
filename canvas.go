@@ -15,6 +15,7 @@ var (
 	Key           *EventSource
 	Mouse         *EventSource
 	canvas        *js.Object
+	textarea      *js.Object
 )
 
 /*
@@ -57,7 +58,7 @@ func initEvents() {
 		},
 	)
 
-	js.Global.Call("addEventListener", "keydown", func(ev *js.Object) {
+	textarea.Call("addEventListener", "keydown", func(ev *js.Object) {
 		Key.Pub(
 			KeyEvent{
 				Code:   ev.Get("keyCode").Int(),
@@ -67,7 +68,7 @@ func initEvents() {
 		)
 	}, false)
 
-	js.Global.Call("addEventListener", "keyup", func(ev *js.Object) {
+	textarea.Call("addEventListener", "keyup", func(ev *js.Object) {
 		Key.Pub(
 			KeyEvent{
 				Code:   ev.Get("keyCode").Int(),
@@ -77,7 +78,7 @@ func initEvents() {
 		)
 	}, false)
 
-	js.Global.Call("addEventListener", "keypress", func(ev *js.Object) {
+	textarea.Call("addEventListener", "keypress", func(ev *js.Object) {
 		Key.Pub(
 			KeyEvent{
 				Code:   ev.Get("keyCode").Int(),
@@ -108,6 +109,22 @@ func initCanvas() {
 	cstyle.Set("padding", "0px")
 
 	body.Call("appendChild", canvas)
+
+	textarea = document.Call("createElement", "textarea")
+	tstyle := textarea.Get("style")
+	tstyle.Set("position", "absolute")
+	tstyle.Set("top", "0")
+	tstyle.Set("left", "0")
+	tstyle.Set("display", "block")
+	tstyle.Set("width", "100%")
+	tstyle.Set("height", "100%")
+	tstyle.Set("margin", "0px")
+	tstyle.Set("padding", "0px")
+	tstyle.Set("z-index", "1000")
+	tstyle.Set("opacity", "0.0")
+	tstyle.Set("filter", "alpha(opacity=0)") /* For IE8 and earlier */
+
+	body.Call("appendChild", textarea)
 }
 
 /*

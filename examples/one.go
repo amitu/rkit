@@ -13,8 +13,11 @@ func main() {
 	go func() {
 		ch := rkit.Key.Sub()
 		for {
+			fmt.Println("waiting for key")
 			ev := <-ch
+			fmt.Println("got ev", ev)
 			key := ev.(rkit.KeyEvent)
+			fmt.Println("got key", key)
 			fmt.Printf("got key: %#U, %d, %d\n", key.Char, key.Code, key.Action)
 		}
 		rkit.DesktopResize.Unsub(ch)

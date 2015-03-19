@@ -42,7 +42,7 @@ func (s *EventSource) Sub() chan Event {
 	s.Lock.Lock()
 	defer s.Lock.Unlock()
 
-	ch := make(chan Event)
+	ch := make(chan Event, 10)
 	s.Channels[ch] = struct{}{}
 
 	if s.Watcher != nil && len(s.Channels) == 1 {
