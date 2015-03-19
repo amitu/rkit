@@ -12,10 +12,23 @@ var (
 		when do, that would be different than this.
 	*/
 	DesktopResize *EventSource
-	Key           *EventSource
-	Mouse         *EventSource
-	canvas        *js.Object
-	textarea      *js.Object
+	/*
+		Key is an EventSource, that can be used to subscribe to keyboard events.
+
+		This is a top level event. In most cases you do not need this, and want
+		a widget specific EventSource for keys.
+	*/
+	Key *EventSource
+	/*
+		Mouse is an EventSource, that can be used to subscribe to mous/touch
+		events.
+
+		This is a top level event. In most cases you do not need this, and want
+		a widget specific EventSource for mouse/touch event.
+	*/
+	Mouse    *EventSource
+	canvas   *js.Object
+	textarea *js.Object
 )
 
 /*
@@ -26,6 +39,10 @@ type DesktopResizeEvent struct {
 	BaseEvent
 }
 
+/*
+	Key and Mouse events have an attribute .Action of type Action. It can be
+	used to determine the action for the event.
+*/
 type Action int
 
 var (
@@ -34,6 +51,10 @@ var (
 	RELEASE = Action(2)
 )
 
+/*
+	KeyEvent is the struct that is sent over on Key event channel when a
+	keyboard event occurs.
+*/
 type KeyEvent struct {
 	BaseEvent
 	Char      rune
@@ -58,6 +79,7 @@ func initEvents() {
 		},
 	)
 
+	// http://unixpapa.com/js/key.html
 	textarea.Call("addEventListener", "keydown", func(ev *js.Object) {
 		Key.Pub(
 			KeyEvent{
