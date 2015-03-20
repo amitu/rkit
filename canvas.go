@@ -63,6 +63,12 @@ type KeyEvent struct {
 	Action    Action
 }
 
+type MouseEvent struct {
+	BaseEvent
+	X, Y   int
+	Action Action
+}
+
 func init() {
 	DesktopResize = MakeEventSource()
 	Key = MakeEventSource()
@@ -109,6 +115,41 @@ func initEvents() {
 			},
 		)
 	}, false)
+
+	// mouse events
+	textarea.Call("addEventListener", "mousemove", func(ev *js.Object) {
+		rect := textarea.Call("getBoundingClientRect")
+		Mouse.Pub(
+			MouseEvent{
+				X:      ev.Get("clientX").Int() - rect.Get("left").Int(),
+				Y:      ev.Get("clientY").Int() - rect.Get("top").Int(),
+				Action: MOVE,
+			},
+		)
+	}, false)
+
+	textarea.Call("addEventListener", "mousedown", func(ev *js.Object) {
+		rect := textarea.Call("getBoundingClientRect")
+		Mouse.Pub(
+			MouseEvent{
+				X:      ev.Get("clientX").Int() - rect.Get("left").Int(),
+				Y:      ev.Get("clientY").Int() - rect.Get("top").Int(),
+				Action: PRESS,
+			},
+		)
+	}, false)
+
+	textarea.Call("addEventListener", "mouseup", func(ev *js.Object) {
+		rect := textarea.Call("getBoundingClientRect")
+		Mouse.Pub(
+			MouseEvent{
+				X:      ev.Get("clientX").Int() - rect.Get("left").Int(),
+				Y:      ev.Get("clientY").Int() - rect.Get("top").Int(),
+				Action: RELEASE,
+			},
+		)
+	}, false)
+
 }
 
 func initCanvas() {
