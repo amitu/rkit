@@ -47,6 +47,10 @@ var (
 	js string
 )
 
+func static(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, r.URL.Path[1:])
+}
+
 func serveIndex(w http.ResponseWriter, r *http.Request) {
 	f, err := os.Open(js)
 	if err != nil {
@@ -102,10 +106,10 @@ func main() {
 
 		if err != nil {
 			panic(err)
-			return
 		}
 	}()
 
+	http.HandleFunc("/data/", static)
 	http.HandleFunc("/", serveIndex)
 	http.ListenAndServe(*addr, nil)
 }
