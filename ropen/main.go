@@ -28,54 +28,50 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"flag"
 	"fmt"
-	"html/template"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var (
-	htmlTemplate *template.Template
+	addr = flag.String(
+		"http", "127.0.0.1:8877", "HTTP Server host:port.",
+	)
+	js string
 )
 
-func tempFile(prefix, suffix string) (*os.File, error) {
-	randBytes := make([]byte, 16)
-	rand.Read(randBytes)
-	return os.Create(
-		filepath.Join(
-			os.TempDir(), prefix+hex.EncodeToString(randBytes)+suffix,
-		),
-	)
-}
-
-func init() {
-	var err error
-	htmlTemplate, err = template.New("html").Parse(`
+func serveIndex(w http.ResponseWriter, r *http.Request) {
+	f, err := os.Open(js)
+	if err != nil {
+		panic(err)
+	}
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprintf(w, `
 		<html>
 			<head>
 				<title>foo</title>
 			</head>
 			<body>
-				<script src="file://{{.}}"></script>
+				<script>%s</script>
 			</body>
 		</html>
-	`,
-	)
-	if err != nil {
-		panic(err)
-	}
+	`, string(data))
 }
 
 func main() {
 	flag.Parse()
 
-	js := flag.Arg(0)
+	js = flag.Arg(0)
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
@@ -99,19 +95,17 @@ func main() {
 		return
 	}
 
-	tmp, err := tempFile("rkit-", ".html")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	go func() {
+		time.Sleep(time.Millisecond * 100)
+		cmd := exec.Command("open", "-a", "Google Chrome", "http://"+*addr)
+		err = cmd.Run()
 
-	htmlTemplate.Execute(tmp, js)
+		if err != nil {
+			panic(err)
+			return
+		}
+	}()
 
-	cmd := exec.Command("open", "-a", "Google Chrome", tmp.Name())
-	err = cmd.Run()
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	http.HandleFunc("/", serveIndex)
+	http.ListenAndServe(*addr, nil)
 }
