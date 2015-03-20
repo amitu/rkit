@@ -42,10 +42,10 @@ import (
 )
 
 var (
-	HTMLTemplate *template.Template
+	htmlTemplate *template.Template
 )
 
-func TempFile(prefix, suffix string) (*os.File, error) {
+func tempFile(prefix, suffix string) (*os.File, error) {
 	randBytes := make([]byte, 16)
 	rand.Read(randBytes)
 	return os.Create(
@@ -57,7 +57,7 @@ func TempFile(prefix, suffix string) (*os.File, error) {
 
 func init() {
 	var err error
-	HTMLTemplate, err = template.New("html").Parse(`
+	htmlTemplate, err = template.New("html").Parse(`
 		<html>
 			<head>
 				<title>foo</title>
@@ -100,13 +100,13 @@ func main() {
 		return
 	}
 
-	tmp, err := TempFile("rkit-", ".html")
+	tmp, err := tempFile("rkit-", ".html")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	HTMLTemplate.Execute(tmp, js)
+	htmlTemplate.Execute(tmp, js)
 
 	cmd := exec.Command("open", "-a", "Google Chrome", tmp.Name())
 	err = cmd.Run()
