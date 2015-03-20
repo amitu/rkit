@@ -1,8 +1,6 @@
 package rkit
 
 import (
-	"fmt"
-
 	"github.com/amitu/rkit/cursor"
 	"github.com/gopherjs/gopherjs/js"
 )
@@ -273,13 +271,12 @@ func SetTitle(title string) {
 func cursor2css(c cursor.Cursor) string {
 	for css, cur := range cursorMap {
 		if cur == c {
-			fmt.Println("cursor: ", c.String(), css)
 			return css
 		}
 	}
-	fmt.Println("nada", c.String())
 	return ""
 }
+
 func GetCursor() cursor.Cursor {
 	tstyle := textarea.Get("style")
 	return cursorMap[tstyle.Get("cursor").String()]
