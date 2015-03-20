@@ -1,6 +1,11 @@
 package rkit
 
-import "github.com/gopherjs/gopherjs/js"
+import (
+	"fmt"
+
+	"github.com/amitu/rkit/cursor"
+	"github.com/gopherjs/gopherjs/js"
+)
 
 var (
 	/*
@@ -29,6 +34,8 @@ var (
 	Mouse    *EventSource
 	canvas   *js.Object
 	textarea *js.Object
+
+	cursorMap map[string]cursor.Cursor
 )
 
 /*
@@ -76,6 +83,47 @@ func init() {
 
 	initCanvas()
 	initEvents()
+
+	cursorMap = map[string]cursor.Cursor{
+		"alias":         cursor.Alias,
+		"all-scroll":    cursor.AllScroll,
+		"auto":          cursor.Auto,
+		"cell":          cursor.Cell,
+		"context-menu":  cursor.ContextMenu,
+		"col-resize":    cursor.ColResize,
+		"copy":          cursor.Copy,
+		"crosshair":     cursor.CrossHair,
+		"default":       cursor.Default,
+		"e-resize":      cursor.EResize,
+		"ew-resize":     cursor.EWResize,
+		"grab":          cursor.Grab,
+		"grabbing":      cursor.Grabbing,
+		"help":          cursor.Help,
+		"move":          cursor.Move,
+		"n-resize":      cursor.NResize,
+		"ne-resize":     cursor.NEResize,
+		"nesw-resize":   cursor.NESWResize,
+		"ns-resize":     cursor.NSResize,
+		"nw-resize":     cursor.NWResize,
+		"nwse-resize":   cursor.NWSEResize,
+		"no-drop":       cursor.NoDrop,
+		"none":          cursor.None,
+		"not-allowed":   cursor.NotAllowed,
+		"pointer":       cursor.Pointer,
+		"progress":      cursor.Progress,
+		"row-resize":    cursor.RowResize,
+		"s-resize":      cursor.SResize,
+		"se-resize":     cursor.SEResize,
+		"sw-resize":     cursor.SWResize,
+		"text":          cursor.Text,
+		"vertical-text": cursor.VerticalText,
+		"w-resize":      cursor.WResize,
+		"wait":          cursor.Wait,
+		"zoom-in":       cursor.ZoomIn,
+		"zoom-out":      cursor.ZoomOut,
+		"initial":       cursor.Initial,
+		"inherit":       cursor.Inherit,
+	}
 }
 
 func initEvents() {
@@ -220,4 +268,24 @@ func Title() string {
 */
 func SetTitle(title string) {
 	js.Global.Get("document").Set("title", title)
+}
+
+func cursor2css(c cursor.Cursor) string {
+	for css, cur := range cursorMap {
+		if cur == c {
+			fmt.Println("cursor: ", c.String(), css)
+			return css
+		}
+	}
+	fmt.Println("nada", c.String())
+	return ""
+}
+func GetCursor() cursor.Cursor {
+	tstyle := textarea.Get("style")
+	return cursorMap[tstyle.Get("cursor").String()]
+}
+
+func SetCursor(c cursor.Cursor) {
+	tstyle := textarea.Get("style")
+	tstyle.Set("cursor", cursor2css(c))
 }
