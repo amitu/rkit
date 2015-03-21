@@ -7,6 +7,6 @@ import (
 )
 
 func main() {
-	data, err := rkit.LoadFile2("words.gz")
+	data, err := rkit.LoadFile("words.gz")
 	fmt.Println(err, len(data))
 }
