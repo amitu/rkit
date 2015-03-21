@@ -2,3 +2,4 @@ ropen/ropen
 tmp
 *.js
 *.js.map
+.DS_Store
